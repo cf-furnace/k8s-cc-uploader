@@ -8,30 +8,35 @@ import (
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
 
-	"github.com/cf-furnace/k8s-stager/lib/swagger/operations"
+	"github.com/cf-furnace/k8s-cc-uploader/lib/swagger/operations"
 )
+
+// This file is safe to edit. Once it exists it will not be overwritten
 
 func configureFlags(api *operations.K8sSwaggerAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
-// ConfigureAPI configures the Stager API server
+// ConfigureAPI configures the CC-Uploader API server
 func ConfigureAPI(api *operations.K8sSwaggerAPI) http.Handler {
 	// configure the api here
 	api.ServeError = errors.ServeError
 
-	api.JSONConsumer = runtime.JSONConsumer()
+	// Set your custom logger if needed. Default one is log.Printf
+	// Expected interface func(string, ...interface{})
+	//
+	// Example:
+	// s.api.Logger = log.Printf
+
+	api.BinConsumer = runtime.ByteStreamConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.StageHandler = operations.StageHandlerFunc(func(params operations.StageParams) middleware.Responder {
-		return middleware.NotImplemented("operation .Stage has not yet been implemented")
+	api.UploadBuildArtifactsHandler = operations.UploadBuildArtifactsHandlerFunc(func(params operations.UploadBuildArtifactsParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UploadBuildArtifacts has not yet been implemented")
 	})
-	api.StagingCompleteHandler = operations.StagingCompleteHandlerFunc(func(params operations.StagingCompleteParams) middleware.Responder {
-		return middleware.NotImplemented("operation .StagingComplete has not yet been implemented")
-	})
-	api.StopStagingHandler = operations.StopStagingHandlerFunc(func(params operations.StopStagingParams) middleware.Responder {
-		return middleware.NotImplemented("operation .StopStaging has not yet been implemented")
+	api.UploadDropletHandler = operations.UploadDropletHandlerFunc(func(params operations.UploadDropletParams) middleware.Responder {
+		return middleware.NotImplemented("operation .UploadDroplet has not yet been implemented")
 	})
 
 	api.ServerShutdown = func() {}

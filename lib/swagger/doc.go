@@ -1,4 +1,4 @@
-/*Package swagger Cloud Foundry CC Bridge Stager
+/*Package swagger Cloud Foundry CC Bridge CC-Uploader
 
     Schemes:
       http
@@ -7,7 +7,7 @@
     Version: v1
 
     Consumes:
-    - application/json
+    - application/octet-stream
 
 
     Produces:

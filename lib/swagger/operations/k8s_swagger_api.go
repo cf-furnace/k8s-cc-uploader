@@ -38,18 +38,16 @@ type K8sSwaggerAPI struct {
 	formats         strfmt.Registry
 	defaultConsumes string
 	defaultProduces string
-	// JSONConsumer registers a consumer for a "application/json" mime type
-	JSONConsumer runtime.Consumer
+	// BinConsumer registers a consumer for a "application/octet-stream" mime type
+	BinConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// StageHandler sets the operation handler for the stage operation
-	StageHandler StageHandler
-	// StagingCompleteHandler sets the operation handler for the staging complete operation
-	StagingCompleteHandler StagingCompleteHandler
-	// StopStagingHandler sets the operation handler for the stop staging operation
-	StopStagingHandler StopStagingHandler
+	// UploadBuildArtifactsHandler sets the operation handler for the upload build artifacts operation
+	UploadBuildArtifactsHandler UploadBuildArtifactsHandler
+	// UploadDropletHandler sets the operation handler for the upload droplet operation
+	UploadDropletHandler UploadDropletHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -100,24 +98,20 @@ func (o *K8sSwaggerAPI) RegisterFormat(name string, format strfmt.Format, valida
 func (o *K8sSwaggerAPI) Validate() error {
 	var unregistered []string
 
-	if o.JSONConsumer == nil {
-		unregistered = append(unregistered, "JSONConsumer")
+	if o.BinConsumer == nil {
+		unregistered = append(unregistered, "BinConsumer")
 	}
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.StageHandler == nil {
-		unregistered = append(unregistered, "StageHandler")
+	if o.UploadBuildArtifactsHandler == nil {
+		unregistered = append(unregistered, "UploadBuildArtifactsHandler")
 	}
 
-	if o.StagingCompleteHandler == nil {
-		unregistered = append(unregistered, "StagingCompleteHandler")
-	}
-
-	if o.StopStagingHandler == nil {
-		unregistered = append(unregistered, "StopStagingHandler")
+	if o.UploadDropletHandler == nil {
+		unregistered = append(unregistered, "UploadDropletHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -146,8 +140,8 @@ func (o *K8sSwaggerAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Con
 	for _, mt := range mediaTypes {
 		switch mt {
 
-		case "application/json":
-			result["application/json"] = o.JSONConsumer
+		case "application/octet-stream":
+			result["application/octet-stream"] = o.BinConsumer
 
 		}
 	}
@@ -193,20 +187,15 @@ func (o *K8sSwaggerAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["PUT"] == nil {
-		o.handlers[strings.ToUpper("PUT")] = make(map[string]http.Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers[strings.ToUpper("POST")] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/staging/{staging_guid}"] = NewStage(o.context, o.StageHandler)
+	o.handlers["POST"]["/build_artifacts/{app_guid}"] = NewUploadBuildArtifacts(o.context, o.UploadBuildArtifactsHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers[strings.ToUpper("POST")] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/staging/{staging_guid}"] = NewStagingComplete(o.context, o.StagingCompleteHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers[strings.ToUpper("DELETE")] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/staging/{staging_guid}"] = NewStopStaging(o.context, o.StopStagingHandler)
+	o.handlers["POST"]["/droplet/{guid}"] = NewUploadDroplet(o.context, o.UploadDropletHandler)
 
 }
 

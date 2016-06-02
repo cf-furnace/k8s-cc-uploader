@@ -1,4 +1,4 @@
-# k8s-stager
+# k8s-cc-uploader
 
 ## Building
 

@@ -3,9 +3,9 @@ package cmd
 import (
 	"net/http"
 
-	"github.com/cf-furnace/k8s-stager/lib"
-	"github.com/cf-furnace/k8s-stager/lib/swagger"
-	"github.com/cf-furnace/k8s-stager/lib/swagger/operations"
+	"github.com/cf-furnace/k8s-cc-uploader/lib"
+	"github.com/cf-furnace/k8s-cc-uploader/lib/swagger"
+	"github.com/cf-furnace/k8s-cc-uploader/lib/swagger/operations"
 
 	"github.com/go-openapi/loads"
 	"github.com/pivotal-golang/lager"
@@ -21,7 +21,7 @@ var (
 // runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run",
-	Short: "Runs the Kubernetes Cloud Foundry Stager",
+	Short: "Runs the Kubernetes Cloud Foundry cc-uploader",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// Load configuration
@@ -41,9 +41,9 @@ var runCmd = &cobra.Command{
 
 		api := operations.NewK8sSwaggerAPI(swaggerSpec)
 
-		stagerServer := swagger.ConfigureAPI(api)
+		ccUploaderServer := swagger.ConfigureAPI(api)
 
-		err = http.ListenAndServe(flagListen, stagerServer)
+		err = http.ListenAndServe(flagListen, ccUploaderServer)
 		if err != nil {
 			logger.Fatal("listening-failed", err)
 		}
